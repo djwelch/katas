@@ -1,8 +1,9 @@
-export interface Transaction {
+export interface PendingTransaction {
   type: "deposit" | "withdraw";
   amount: number;
 }
 
-export interface VerifiedTransaction extends Transaction {
+export interface VerifiedTransaction {
   date: Date;
+  amount: number;
 }

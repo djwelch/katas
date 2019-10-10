@@ -16,12 +16,10 @@ describe("MemoryTransactionRepository", () => {
 
   describe(".add", () => {
     it("uses the transaction verifier to store only verified transactions", () => {
-      const transaction: VerifiedTransaction = { type: "deposit", amount: 1, date: new Date() };
+      const transaction: VerifiedTransaction = { amount: 1, date: new Date() };
       factory.verify = jest.fn(() => transaction);
       repo.add({ type: "deposit", amount: 1 });
       expect(repo.all()).toStrictEqual([transaction]);
     });
   });
-
-  it.todo(".all");
 });

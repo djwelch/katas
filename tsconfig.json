@@ -2,6 +2,7 @@
   "compilerOptions": {
     "strict": true,
     "experimentalDecorators": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "sourceMap": true
   }
 }

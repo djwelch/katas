@@ -1,9 +1,10 @@
 import { DateProvider } from "./date-provider";
-import { Transaction } from "./transaction";
+import { PendingTransaction } from "./transaction";
 import { DatedTransactionVerifier } from "./transaction-verifier";
 
+const dateValue = new Date();
 const MockProvider = jest.fn<DateProvider, any[]>(() => ({
-  getDate: jest.fn()
+  getDate: jest.fn(() => dateValue)
 }));
 
 describe("TransactionVerifier", () => {
@@ -15,12 +16,16 @@ describe("TransactionVerifier", () => {
   });
 
   describe(".verify", () => {
-    it("should date the transactions", () => {
-      const dateValue = new Date();
-      date.getDate = jest.fn(() => dateValue);
-      const transaction: Transaction = { type: "withdraw", amount: 1 };
+    it("should verify the withdrawl transactions", () => {
+      const transaction: PendingTransaction = { type: "withdraw", amount: 1 };
       const verified = verifier.verify(transaction);
-      expect(verified).toStrictEqual({ type: "withdraw", amount: 1, date: dateValue });
+      expect(verified).toStrictEqual({ amount: -1, date: dateValue });
+    });
+
+    it("should verify the deposit transactions", () => {
+      const transaction: PendingTransaction = { type: "deposit", amount: 1 };
+      const verified = verifier.verify(transaction);
+      expect(verified).toStrictEqual({ amount: 1, date: dateValue });
     });
   });
 });

@@ -1,17 +1,17 @@
-import { Transaction, VerifiedTransaction } from "./transaction";
+import { PendingTransaction, VerifiedTransaction } from "./transaction";
 import { DatedTransactionVerifier, TransactionVerifier } from "./transaction-verifier";
 
 export interface TransactionRepository {
-  add(transaction: Transaction): void;
+  add(transaction: PendingTransaction): void;
   all(): VerifiedTransaction[];
 }
 
 export class MemoryTransactionRepository implements TransactionRepository {
   private storage: VerifiedTransaction[] = [];
 
-  constructor(private factory: TransactionVerifier = new DatedTransactionVerifier()) {}
+  constructor(private factory: TransactionVerifier) {}
 
-  add(transaction: Transaction): void {
+  add(transaction: PendingTransaction): void {
     this.storage.push(this.factory.verify(transaction));
   }
 

@@ -1,6 +1,6 @@
 import { Account } from "./account";
 import { StatementPrinter } from "./statement-printer";
-import { Transaction, VerifiedTransaction } from "./transaction";
+import { PendingTransaction, VerifiedTransaction } from "./transaction";
 import { TransactionRepository } from "./transaction-repository";
 
 const MockRepository = jest.fn<TransactionRepository, any[]>(() => ({
@@ -37,7 +37,7 @@ describe("Account", () => {
   });
   describe(".print", () => {
     it("prints the statement", () => {
-      const transactions: VerifiedTransaction[] = [{ type: "withdraw", amount: 20, date: new Date() }];
+      const transactions: VerifiedTransaction[] = [{ amount: 20, date: new Date() }];
       repo.all = jest.fn(() => transactions);
 
       account.print();
