@@ -1,16 +1,8 @@
 import { Account } from "../account";
 import { StatementPrinter } from "../statement-printer";
-import { PendingTransaction, VerifiedTransaction } from "../transaction";
+import { VerifiedTransaction } from "../transaction";
 import { TransactionRepository } from "../transaction-repository";
-
-const MockRepository = jest.fn<TransactionRepository, any[]>(() => ({
-  add: jest.fn(),
-  all: jest.fn()
-}));
-
-const MockPrinter = jest.fn<StatementPrinter, any[]>(() => ({
-  print: jest.fn()
-}));
+import { MockStatementPrinter, MockTransactionRepository } from "./_mocks";
 
 describe("Account", () => {
   let repo: TransactionRepository;
@@ -18,8 +10,8 @@ describe("Account", () => {
   let account: Account;
 
   beforeEach(() => {
-    repo = new MockRepository();
-    printer = new MockPrinter();
+    repo = new MockTransactionRepository();
+    printer = new MockStatementPrinter();
     account = new Account(repo, printer);
   });
 

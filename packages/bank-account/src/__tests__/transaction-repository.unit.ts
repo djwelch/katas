@@ -1,16 +1,13 @@
 import { VerifiedTransaction } from "../transaction";
 import { MemoryTransactionRepository } from "../transaction-repository";
 import { TransactionVerifier } from "../transaction-verifier";
-
-const MockFactory = jest.fn<TransactionVerifier, any[]>(() => ({
-  verify: jest.fn()
-}));
+import { MockTransactionVerifier } from "./_mocks";
 
 describe("MemoryTransactionRepository", () => {
   let factory: TransactionVerifier;
   let repo: MemoryTransactionRepository;
   beforeEach(() => {
-    factory = new MockFactory();
+    factory = new MockTransactionVerifier();
     repo = new MemoryTransactionRepository(factory);
   });
 

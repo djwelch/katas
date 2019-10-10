@@ -1,4 +1,6 @@
-# Bank kata
+# Bank Account Kata
+
+# Background
 
 Create a simple bank application with the following features:
 

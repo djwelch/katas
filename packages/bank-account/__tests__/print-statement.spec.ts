@@ -1,3 +1,4 @@
+import { MockConsolePrinter, MockDateProvider } from "../src/__tests__/_mocks";
 import { Account } from "../src/account";
 import { ConsolePrinter } from "../src/console-printer";
 import { DateFormatterImpl } from "../src/date-formatter";
@@ -6,31 +7,19 @@ import { StatementPrinterImpl } from "../src/statement-printer";
 import { MemoryTransactionRepository } from "../src/transaction-repository";
 import { DatedTransactionVerifier } from "../src/transaction-verifier";
 
-const MockPrinter = jest.fn<ConsolePrinter, any[]>(() => ({
-  printLine: jest.fn()
-}));
-
-const MockDate = jest.fn<DateProvider, any[]>(() => ({
-  getDate: jest.fn()
-}));
-
-beforeEach(() => {
-  MockPrinter.mockClear();
-});
-
 describe("The print statement feature", () => {
   it("should contain all the transactions that have occurred in an account", () => {
-    const date = new MockDate();
+    const date = new MockDateProvider();
+    const printer = new MockConsolePrinter();
+    const account = new Account(
+      new MemoryTransactionRepository(new DatedTransactionVerifier(date)),
+      new StatementPrinterImpl(new DateFormatterImpl(), printer)
+    );
     date.getDate = jest
       .fn()
       .mockImplementationOnce(() => new Date(2014, 4, 1, 10))
       .mockImplementationOnce(() => new Date(2014, 4, 2, 10))
       .mockImplementationOnce(() => new Date(2014, 4, 10, 10));
-    const printer = new MockPrinter();
-    const account = new Account(
-      new MemoryTransactionRepository(new DatedTransactionVerifier(date)),
-      new StatementPrinterImpl(new DateFormatterImpl(), printer)
-    );
 
     account.deposit(1000);
     account.withdraw(100);
