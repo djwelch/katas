@@ -1,4 +1,4 @@
-import { DateFormatterImpl } from "./date-formatter";
+import { DateFormatterImpl } from "../date-formatter";
 
 describe("DateFormatter", () => {
   describe(".formatDate", () => {

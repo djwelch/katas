@@ -1,7 +1,7 @@
-import { Account } from "./account";
-import { StatementPrinter } from "./statement-printer";
-import { PendingTransaction, VerifiedTransaction } from "./transaction";
-import { TransactionRepository } from "./transaction-repository";
+import { Account } from "../account";
+import { StatementPrinter } from "../statement-printer";
+import { PendingTransaction, VerifiedTransaction } from "../transaction";
+import { TransactionRepository } from "../transaction-repository";
 
 const MockRepository = jest.fn<TransactionRepository, any[]>(() => ({
   add: jest.fn(),

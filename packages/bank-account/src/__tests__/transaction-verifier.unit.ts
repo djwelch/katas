@@ -1,6 +1,6 @@
-import { DateProvider } from "./date-provider";
-import { PendingTransaction } from "./transaction";
-import { DatedTransactionVerifier } from "./transaction-verifier";
+import { DateProvider } from "../date-provider";
+import { PendingTransaction } from "../transaction";
+import { DatedTransactionVerifier } from "../transaction-verifier";
 
 const dateValue = new Date();
 const MockProvider = jest.fn<DateProvider, any[]>(() => ({

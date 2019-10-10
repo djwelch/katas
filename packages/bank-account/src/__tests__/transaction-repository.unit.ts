@@ -1,6 +1,6 @@
-import { VerifiedTransaction } from "./transaction";
-import { MemoryTransactionRepository } from "./transaction-repository";
-import { TransactionVerifier } from "./transaction-verifier";
+import { VerifiedTransaction } from "../transaction";
+import { MemoryTransactionRepository } from "../transaction-repository";
+import { TransactionVerifier } from "../transaction-verifier";
 
 const MockFactory = jest.fn<TransactionVerifier, any[]>(() => ({
   verify: jest.fn()

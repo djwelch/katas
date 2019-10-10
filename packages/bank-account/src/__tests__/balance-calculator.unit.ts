@@ -1,4 +1,4 @@
-import { BalanceCalculator } from "./balance-calculator";
+import { BalanceCalculator } from "../balance-calculator";
 
 describe("BalanceCalculator", () => {
   describe(".runningBalance", () => {
