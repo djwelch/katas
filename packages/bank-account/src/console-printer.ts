@@ -1,6 +1,6 @@
 import { NotImplementedError } from "./not-implemented-error";
 
-export class Printer {
+export class ConsolePrinter {
   printLine(line: string) {
     throw new NotImplementedError();
   }
