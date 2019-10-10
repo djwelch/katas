@@ -1,3 +1,4 @@
+import { BalanceCalculator } from "./balance-calculator";
 import { ConsolePrinter } from "./console-printer";
 import { DateFormatter, DateFormatterImpl } from "./date-formatter";
 import { NotImplementedError } from "./not-implemented-error";
@@ -11,16 +12,18 @@ export class StatementPrinterImpl implements StatementPrinter {
   constructor(private dateFormatter: DateFormatter, private console: ConsolePrinter) {}
 
   print(transactions: VerifiedTransaction[]): void {
-    this.console.printLine("DATE | AMOUNT | BALANCE");
+    this.printHeader();
+    this.printLines(transactions);
+  }
 
-    let runningBal = 0;
-    transactions
-      .sort((a, b) => a.date.getTime() - b.date.getTime())
-      .map(t => {
-        runningBal += t.amount;
-        return this.transactionToLine(t, runningBal);
-      })
-      .reverse()
+  private printHeader() {
+    this.console.printLine("DATE | AMOUNT | BALANCE");
+  }
+
+  private printLines(transactions: VerifiedTransaction[]): void {
+    new BalanceCalculator(transactions)
+      .runningBalance()
+      .map(([t, bal]) => this.transactionToLine(t, bal))
       .forEach(line => this.console.printLine(line));
   }
 
