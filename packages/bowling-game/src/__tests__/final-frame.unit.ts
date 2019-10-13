@@ -1,6 +1,9 @@
 import { FinalFrameImpl } from "../final-frame";
 
 describe("FinalFrame", () => {
+  let GUTTER = 0;
+  let SPARE = 1;
+  let STRIKE = 10;
   let frame: FinalFrameImpl;
   beforeEach(() => {
     frame = new FinalFrameImpl();
@@ -49,6 +52,36 @@ describe("FinalFrame", () => {
       frame.roll(1);
       frame.roll(1);
       expect(() => frame.roll(1)).toThrow();
+    });
+  });
+  describe(".score", () => {
+    it("should score zero with 2 gutter rolls", () => {
+      frame.roll(GUTTER);
+      frame.roll(GUTTER);
+      expect(frame.score([])).toStrictEqual([0]);
+    });
+    it("should score one with a spare roll and a gutter rolls", () => {
+      frame.roll(SPARE);
+      frame.roll(GUTTER);
+      expect(frame.score([])).toStrictEqual([1]);
+    });
+    it("should score a perfect final frame", () => {
+      frame.roll(STRIKE);
+      frame.roll(STRIKE);
+      frame.roll(STRIKE);
+      expect(frame.score([])).toStrictEqual([10, 10, 10]);
+    });
+    it("should get correct score with first half-strike", () => {
+      frame.roll(GUTTER);
+      frame.roll(STRIKE);
+      frame.roll(STRIKE);
+      expect(frame.score([])).toStrictEqual([10, 10]);
+    });
+    it("should get correct score with last half-strike", () => {
+      frame.roll(STRIKE);
+      frame.roll(GUTTER);
+      frame.roll(STRIKE);
+      expect(frame.score([])).toStrictEqual([10, 0, 10]);
     });
   });
 });

@@ -1,6 +1,10 @@
 import { FrameImpl } from "../frame";
 
 describe("Frame", () => {
+  let GUTTER = 0;
+  let SPARE = 1;
+  let HALFSTRIKE = 9;
+  let STRIKE = 10;
   let frame: FrameImpl;
   beforeEach(() => {
     frame = new FrameImpl();
@@ -33,6 +37,32 @@ describe("Frame", () => {
       frame.roll(1);
       frame.roll(1);
       expect(() => frame.roll(1)).toThrowError();
+    });
+  });
+  describe(".score", () => {
+    it("scores gutter rolls", () => {
+      frame.roll(GUTTER);
+      frame.roll(GUTTER);
+      expect(frame.score([STRIKE, STRIKE])).toStrictEqual([0]);
+    });
+    it("scores normal rolls", () => {
+      frame.roll(SPARE);
+      frame.roll(GUTTER);
+      expect(frame.score([STRIKE, STRIKE])).toStrictEqual([1]);
+    });
+    it("scores half-strike rolls followed by gutter", () => {
+      frame.roll(HALFSTRIKE);
+      frame.roll(SPARE);
+      expect(frame.score([GUTTER, STRIKE])).toStrictEqual([10]);
+    });
+    it("scores half-strike rolls followed by strike", () => {
+      frame.roll(HALFSTRIKE);
+      frame.roll(SPARE);
+      expect(frame.score([STRIKE, STRIKE])).toStrictEqual([20]);
+    });
+    it("scores strike rolls followed by strikes", () => {
+      frame.roll(STRIKE);
+      expect(frame.score([STRIKE, STRIKE])).toStrictEqual([30]);
     });
   });
 });

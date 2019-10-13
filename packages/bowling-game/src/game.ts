@@ -10,7 +10,7 @@ export class Game {
   roll(pins: number) {
     if (this.completed) throw new Error("Game Completed");
     if (this.currentFrame.roll(pins)) {
-      this.frames.push(this.currentFrame);
+      this.frames.unshift(this.currentFrame);
       this.completed = this.frames.length === 10;
       if (!this.completed) {
         this.currentFrame = this.factory.startFrame(this.frames.length + 1);
@@ -21,11 +21,12 @@ export class Game {
   score(): number {
     let nextScores: number[] = [];
     let runningScore = 0;
-    for (const frame of this.frames.reverse()) {
-      let score = frame.score([...nextScores]);
+    for (const frame of this.frames) {
+      let scores = frame.score(nextScores);
+      console.log(scores);
+      const score = scores.reduce((s1, s2) => s1 + s2, 0);
       runningScore += score;
-      if (nextScores.length === 2) nextScores.pop();
-      nextScores.unshift(score);
+      nextScores = [...scores, ...nextScores];
     }
     return runningScore;
   }

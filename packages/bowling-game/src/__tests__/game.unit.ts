@@ -49,8 +49,8 @@ describe("Game", () => {
       frame.roll = jest.fn().mockReturnValue(true);
       frame.score = jest
         .fn()
-        .mockReturnValueOnce(SPARE)
-        .mockReturnValueOnce(GUTTER);
+        .mockReturnValueOnce([SPARE])
+        .mockReturnValueOnce([GUTTER]);
       game.roll(SPARE);
       game.roll(GUTTER);
       game.score();
@@ -60,9 +60,9 @@ describe("Game", () => {
       frame.roll = jest.fn().mockReturnValue(true);
       frame.score = jest
         .fn()
-        .mockReturnValueOnce(SPARE)
-        .mockReturnValueOnce(SPARE)
-        .mockReturnValueOnce(GUTTER);
+        .mockReturnValueOnce([SPARE])
+        .mockReturnValueOnce([SPARE])
+        .mockReturnValueOnce([GUTTER]);
       game.roll(SPARE);
       game.roll(SPARE);
       game.roll(GUTTER);
@@ -73,16 +73,16 @@ describe("Game", () => {
       frame.roll = jest.fn().mockReturnValue(true);
       frame.score = jest
         .fn()
-        .mockReturnValueOnce(SPARE)
-        .mockReturnValueOnce(GUTTER)
-        .mockReturnValueOnce(SPARE)
-        .mockReturnValueOnce(GUTTER);
+        .mockReturnValueOnce([SPARE])
+        .mockReturnValueOnce([GUTTER])
+        .mockReturnValueOnce([SPARE])
+        .mockReturnValueOnce([GUTTER]);
       game.roll(SPARE);
       game.roll(GUTTER);
       game.roll(SPARE);
       game.roll(GUTTER);
       game.score();
-      expect(frame.score).toHaveBeenNthCalledWith(4, [SPARE, GUTTER]);
+      expect(frame.score).toHaveBeenNthCalledWith(4, [SPARE, GUTTER, SPARE]);
     });
     it("does not score incomplete frames", () => {
       frame.roll = jest.fn().mockReturnValue(false);
@@ -92,7 +92,7 @@ describe("Game", () => {
     });
     it("totals each frame", () => {
       frame.roll = jest.fn().mockReturnValue(true);
-      frame.score = jest.fn().mockReturnValue(1);
+      frame.score = jest.fn().mockReturnValue([SPARE]);
       for (let i = 1; i <= 10; ++i) {
         game.roll(SPARE);
       }

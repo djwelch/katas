@@ -1,6 +1,6 @@
 export interface Frame {
   roll(pins: number): boolean;
-  score(nextScores: number[]): number;
+  score(nextScores: number[]): number[];
 }
 
 export interface FrameFactory {
