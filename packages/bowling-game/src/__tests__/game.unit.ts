@@ -1,11 +1,11 @@
-import { Frame } from "../frame";
-import { FrameFactory } from "../frame-factory";
 import { Game } from "../game";
-import { InvalidRollError } from "../invalid-roll-error";
+import { Frame, FrameFactory } from "../interfaces";
 import { MockFrame, MockFrameFactory } from "./_mocks";
 
 describe("Game", () => {
   const STRIKE = 10;
+  const SPARE = 1;
+  const GUTTER = 0;
   let frame: Frame;
   let frameFactory: FrameFactory;
   let game: Game;
@@ -36,7 +36,67 @@ describe("Game", () => {
       for (let i = 1; i <= 10; ++i) {
         game.roll(STRIKE);
       }
-      expect(() => game.roll(STRIKE)).toThrowError(InvalidRollError);
+      expect(() => game.roll(STRIKE)).toThrowError();
+    });
+  });
+  describe("score", () => {
+    it("single frame with gutter roll just returns zero.", () => {
+      frame.score = jest.fn().mockReturnValueOnce(GUTTER);
+      game.roll(GUTTER);
+      expect(game.score()).toBe(0);
+    });
+    it("with 2 frames, scoring first frame gets next frames score", () => {
+      frame.roll = jest.fn().mockReturnValue(true);
+      frame.score = jest
+        .fn()
+        .mockReturnValueOnce(SPARE)
+        .mockReturnValueOnce(GUTTER);
+      game.roll(SPARE);
+      game.roll(GUTTER);
+      game.score();
+      expect(frame.score).toHaveBeenNthCalledWith(2, [SPARE]);
+    });
+    it("with 3 frames, scoring first frame gets next frames score", () => {
+      frame.roll = jest.fn().mockReturnValue(true);
+      frame.score = jest
+        .fn()
+        .mockReturnValueOnce(SPARE)
+        .mockReturnValueOnce(SPARE)
+        .mockReturnValueOnce(GUTTER);
+      game.roll(SPARE);
+      game.roll(SPARE);
+      game.roll(GUTTER);
+      game.score();
+      expect(frame.score).toHaveBeenNthCalledWith(3, [SPARE, SPARE]);
+    });
+    it("with 4 frames, scoring first frame gets next frames score", () => {
+      frame.roll = jest.fn().mockReturnValue(true);
+      frame.score = jest
+        .fn()
+        .mockReturnValueOnce(SPARE)
+        .mockReturnValueOnce(GUTTER)
+        .mockReturnValueOnce(SPARE)
+        .mockReturnValueOnce(GUTTER);
+      game.roll(SPARE);
+      game.roll(GUTTER);
+      game.roll(SPARE);
+      game.roll(GUTTER);
+      game.score();
+      expect(frame.score).toHaveBeenNthCalledWith(4, [SPARE, GUTTER]);
+    });
+    it("does not score incomplete frames", () => {
+      frame.roll = jest.fn().mockReturnValue(false);
+      game.roll(GUTTER);
+      game.score();
+      expect(frame.score).not.toHaveBeenCalled();
+    });
+    it("totals each frame", () => {
+      frame.roll = jest.fn().mockReturnValue(true);
+      frame.score = jest.fn().mockReturnValue(1);
+      for (let i = 1; i <= 10; ++i) {
+        game.roll(SPARE);
+      }
+      expect(game.score()).toBe(10);
     });
   });
 });
