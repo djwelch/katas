@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": "packages/bowling-game"
+    },
+    {
+      "path": "packages/bank-account"
+    }
+  ],
+  "settings": {
+    "jest.autoEnable": true,
+    "jest.pathToJest": "yarn jest"
+  }
+}

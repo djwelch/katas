@@ -1,4 +1,0 @@
-{
-  "jest.autoEnable": true,
-  "jest.pathToJest": "yarn jest"
-}
