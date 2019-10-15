@@ -1,10 +1,10 @@
-import { Frame } from "./interfaces";
+import { Frame } from "./frame";
 
-export class FinalFrameImpl implements Frame {
+export class FinalFrame implements Frame {
   private pinsLeft = 10;
   private rollsLeft = 2;
   private maxRolls = 3;
-  private totalScore: number[] = [];
+  public rolls: number[] = [];
 
   roll(pins: number): boolean {
     if (this.pinsLeft < pins) throw new Error("Invalid Roll");
@@ -12,7 +12,7 @@ export class FinalFrameImpl implements Frame {
     this.maxRolls -= 1;
     this.rollsLeft -= 1;
     this.pinsLeft -= pins;
-    this.totalScore.push(pins);
+    this.rolls.push(pins);
     if (this.pinsLeft === 0) {
       this.pinsLeft = 10;
       this.rollsLeft = Math.min(this.maxRolls, this.rollsLeft + 1);
@@ -20,11 +20,7 @@ export class FinalFrameImpl implements Frame {
     return this.rollsLeft === 0;
   }
 
-  score(_: number[]): number[] {
-    if (this.totalScore[0] < 10) {
-      const firstRoll = this.totalScore.shift()!;
-      this.totalScore[0] = this.totalScore[0] + firstRoll;
-    }
-    return this.totalScore;
+  score(_: number[]): number {
+    return this.rolls.reduce((sum, pins) => sum + pins, 0);
   }
 }

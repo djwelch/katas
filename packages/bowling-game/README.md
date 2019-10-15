@@ -1,3 +1,5 @@
+The implementation of this kata is a work in progress.
+
 # Bowling Game Kata
 
 Source: [https://github.com/ardalis/kata-catalog](https://github.com/ardalis/kata-catalog)

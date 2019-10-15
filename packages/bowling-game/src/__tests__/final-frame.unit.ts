@@ -1,87 +1,56 @@
-import { FinalFrameImpl } from "../final-frame";
+import { FinalFrame } from "../final-frame";
 
 describe("FinalFrame", () => {
-  let GUTTER = 0;
-  let SPARE = 1;
+  let GUTTER_ROLL = 0;
+  let SINGLE_PIN = 1;
   let STRIKE = 10;
-  let frame: FinalFrameImpl;
+  let HALFSTRIKE = [5, 5];
+  let GUTTER_GAME = [0, 0];
+  let PERFECT_GAME = [10, 10, 10];
+  let frame: FinalFrame;
   beforeEach(() => {
-    frame = new FinalFrameImpl();
+    frame = new FinalFrame();
   });
+
   describe(".roll", () => {
-    it("does not complete after rolling a strike", () => {
-      expect(frame.roll(10)).toBe(false);
+    it("gutter rolls completes the frame", () => {
+      const complete = GUTTER_GAME.map(pins => frame.roll(pins));
+      expect(complete).toStrictEqual([false, true]);
     });
-    it("completes after two rolls and not all pins knocked down", () => {
-      frame.roll(1);
-      expect(frame.roll(8)).toBe(true);
-    });
-    it("does not complete after a half strike", () => {
-      frame.roll(5);
-      expect(frame.roll(5)).toBe(false);
+    it("perfect rolls completes the frame", () => {
+      const complete = PERFECT_GAME.map(pins => frame.roll(pins));
+      expect(complete).toStrictEqual([false, false, true]);
     });
     it("completes after a half strike and an extra roll", () => {
-      frame.roll(5);
-      frame.roll(5);
-      expect(frame.roll(10)).toBe(true);
-    });
-    it("completes after a strike and two extra rolls", () => {
-      frame.roll(10);
-      expect(frame.roll(9)).toBe(false);
-      expect(frame.roll(1)).toBe(true);
-    });
-    it("completes after a 3 strikes", () => {
-      frame.roll(10);
-      expect(frame.roll(10)).toBe(false);
-      expect(frame.roll(10)).toBe(true);
+      const complete = [...HALFSTRIKE, GUTTER_ROLL].map(pins => frame.roll(pins));
+      expect(complete).toStrictEqual([false, false, true]);
     });
     it("throws if more than 3 rolls", () => {
-      frame.roll(10);
-      frame.roll(10);
-      frame.roll(10);
-      expect(() => frame.roll(1)).toThrow();
+      PERFECT_GAME.map(pins => frame.roll(pins));
+      expect(() => frame.roll(GUTTER_ROLL)).toThrow();
     });
     it("throws if roll more than 10 pins", () => {
-      expect(() => frame.roll(11)).toThrow();
+      expect(() => frame.roll(SINGLE_PIN + STRIKE)).toThrow();
     });
     it("throws if knock down more than 10 pins", () => {
-      frame.roll(1);
-      expect(() => frame.roll(10)).toThrow();
+      frame.roll(SINGLE_PIN);
+      expect(() => frame.roll(STRIKE)).toThrow();
     });
     it("throws if more than 3 rolls with no strike", () => {
-      frame.roll(1);
-      frame.roll(1);
-      expect(() => frame.roll(1)).toThrow();
+      GUTTER_GAME.map(pins => frame.roll(pins));
+      expect(() => frame.roll(SINGLE_PIN)).toThrow();
     });
   });
   describe(".score", () => {
-    it("should score zero with 2 gutter rolls", () => {
-      frame.roll(GUTTER);
-      frame.roll(GUTTER);
-      expect(frame.score([])).toStrictEqual([0]);
-    });
-    it("should score one with a spare roll and a gutter rolls", () => {
-      frame.roll(SPARE);
-      frame.roll(GUTTER);
-      expect(frame.score([])).toStrictEqual([1]);
-    });
-    it("should score a perfect final frame", () => {
-      frame.roll(STRIKE);
-      frame.roll(STRIKE);
-      frame.roll(STRIKE);
-      expect(frame.score([])).toStrictEqual([10, 10, 10]);
-    });
-    it("should get correct score with first half-strike", () => {
-      frame.roll(GUTTER);
-      frame.roll(STRIKE);
-      frame.roll(STRIKE);
-      expect(frame.score([])).toStrictEqual([10, 10]);
-    });
-    it("should get correct score with last half-strike", () => {
-      frame.roll(STRIKE);
-      frame.roll(GUTTER);
-      frame.roll(STRIKE);
-      expect(frame.score([])).toStrictEqual([10, 0, 10]);
+    it.each([
+      [GUTTER_GAME, 0],
+      [PERFECT_GAME, 30],
+      [[...HALFSTRIKE, STRIKE], 20],
+      [[SINGLE_PIN, GUTTER_ROLL], 1],
+      [[STRIKE, ...HALFSTRIKE], 20]
+    ])("should score the frame", (rolls: any, score: any) => {
+      rolls.map((pins: number) => frame.roll(pins));
+      expect(frame.score([])).toStrictEqual(score);
     });
   });
 });

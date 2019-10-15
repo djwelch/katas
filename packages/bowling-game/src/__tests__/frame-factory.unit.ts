@@ -1,14 +1,14 @@
-import { FinalFrameImpl } from "../final-frame";
-import { FrameImpl } from "../frame";
-import { FrameFactoryImpl } from "../frame-factory";
+import { FinalFrame } from "../final-frame";
+import { FirstFrame } from "../first-frame";
+import { FrameFactory } from "../frame-factory";
 
 describe("FrameFactory", () => {
   describe(".startFrame", () => {
     it("returns a new frame", () => {
-      expect(new FrameFactoryImpl().startFrame(1)).toBeInstanceOf(FrameImpl);
+      expect(new FrameFactory().startFrame(1)).toBeInstanceOf(FirstFrame);
     });
     it("returns a final frame on last round", () => {
-      expect(new FrameFactoryImpl().startFrame(10)).toBeInstanceOf(FinalFrameImpl);
+      expect(new FrameFactory().startFrame(10)).toBeInstanceOf(FinalFrame);
     });
   });
 });

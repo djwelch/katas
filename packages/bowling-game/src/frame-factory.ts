@@ -1,12 +1,12 @@
-import { FinalFrameImpl } from "./final-frame";
-import { FrameImpl } from "./frame";
-import { Frame, FrameFactory } from "./interfaces";
+import { FinalFrame } from "./final-frame";
+import { FirstFrame } from "./first-frame";
+import { Frame } from "./frame";
 
-export class FrameFactoryImpl implements FrameFactory {
+export class FrameFactory {
   startFrame(frame: number): Frame {
     if (frame === 10) {
-      return new FinalFrameImpl();
+      return new FinalFrame();
     }
-    return new FrameImpl();
+    return new FirstFrame();
   }
 }

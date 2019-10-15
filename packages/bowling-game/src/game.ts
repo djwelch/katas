@@ -1,4 +1,5 @@
-import { Frame, FrameFactory } from "./interfaces";
+import { Frame } from "./frame";
+import { FrameFactory } from "./frame-factory";
 
 export class Game {
   private frames: Frame[] = [];
@@ -19,14 +20,12 @@ export class Game {
   }
 
   score(): number {
-    let nextScores: number[] = [];
+    let nextRolls: number[] = [];
     let runningScore = 0;
     for (const frame of this.frames) {
-      let scores = frame.score(nextScores);
-      console.log(scores);
-      const score = scores.reduce((s1, s2) => s1 + s2, 0);
+      let score = frame.score(nextRolls);
       runningScore += score;
-      nextScores = [...scores, ...nextScores];
+      nextRolls = [...frame.rolls, ...nextRolls];
     }
     return runningScore;
   }
