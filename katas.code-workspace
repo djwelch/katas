@@ -1,16 +1,7 @@
 {
   "folders": [
     {
-      "path": "packages/bowling-game"
-    },
-    {
-      "path": "packages/bank-account"
-    },
-    {
-      "path": "packages/leap-year"
-    },
-    {
-      "path": "packages/prime-composite"
+      "path": "packages/prime-composite-2"
     }
   ],
   "settings": {
