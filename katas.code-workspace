@@ -5,6 +5,12 @@
     },
     {
       "path": "packages/bank-account"
+    },
+    {
+      "path": "packages/leap-year"
+    },
+    {
+      "path": "packages/prime-composite"
     }
   ],
   "settings": {
