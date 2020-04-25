@@ -1,0 +1,14 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:recommended", "tslint-sonarts", "tslint-consistent-codestyle", "tslint-clean-code"],
+  "jsRules": {},
+  "rules": {
+    "no-angle-bracket-type-assertion": false,
+    "min-class-cohesion": true,
+    "no-complex-conditionals": true,
+    "no-feature-envy": true,
+    "max-func-args": true,
+    "newspaper-order": true
+  },
+  "rulesDirectory": []
+}
