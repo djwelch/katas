@@ -1,0 +1,10 @@
+#/bin/sh
+
+mkdir packages/$1
+mkdir packages/$1/__tests__
+mkdir packages/$1/src
+mkdir packages/$1/src/__tests__
+cp .templates/eslintrc.js packages/$1/.eslintrc.js
+cp .templates/package.json packages/$1/package.json
+cp .templates/tsconfig.json packages/$1/tsconfig.json
+cp .templates/jest.config.js packages/$1/jest.config.js
