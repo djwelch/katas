@@ -14,6 +14,9 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Boost COMPONENTS log log_setup REQUIRED)
 # find_package(Threads REQUIRED)
 
-add_executable(simple-game src/main.cpp)
+file(GLOB SOURCES src/*.h src/*.cpp)
+add_executable(simple-game ${SOURCES})
+
 # Threads::Threads
-target_link_libraries(simple-game Boost::log Boost::log_setup  Qt5::Widgets)
+target_link_libraries(simple-game 
+  Boost::log Boost::log_setup Qt5::Widgets)
