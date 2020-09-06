@@ -12,6 +12,7 @@ bool KeyboardFilter::eventFilter(QObject *obj, QEvent *event) {
 }
 
 void KeyboardFilter::handleKeyPress(QKeyEvent *event) {
+  // TODO: input state platform abstraction.
   auto key = event->key();
   switch(key) {
     case Qt::Key_W:
