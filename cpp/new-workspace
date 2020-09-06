@@ -1,0 +1,11 @@
+#/bin/sh
+
+mkdir $1
+mkdir $1/__tests__
+mkdir $1/src
+mkdir $1/src/__tests__
+mkdir $1/build
+cp .template/CMakeLists.txt $1/CMakeLists.txt
+cp .template/main.cpp $1/src/main.cpp
+sed -i "s/{}/$1/g" $1/CMakeLists.txt
+ln -s build/compile_commands.json ./$1/.
