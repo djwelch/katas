@@ -11,15 +11,22 @@ MainWindow::MainWindow(QApplication &app)
   , backBuffer(800, 600, QImage::Format_RGB32)
   , game(Game::Create(this)) {
   setFixedSize(800, 600);
-  startTimer(1000/60, Qt::PreciseTimer);
   setFocusPolicy(Qt::NoFocus);
   setFocus(Qt::ActiveWindowFocusReason);
 
   keyboardFilter = new KeyboardFilter(game);
   app.installEventFilter(keyboardFilter);
+
+  timerIndex = startTimer(1000/60, Qt::PreciseTimer);
 }
 
 MainWindow::~MainWindow() {
+  killTimer(timerIndex);
+  timerIndex= 0;
+  delete keyboardFilter;
+  keyboardFilter = nullptr;
+  delete game;
+  game = nullptr;
 }
 
 void MainWindow::paintEvent(QPaintEvent *) {

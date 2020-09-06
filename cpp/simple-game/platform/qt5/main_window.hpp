@@ -20,6 +20,7 @@ class MainWindow : public QMainWindow, public Platform
   private:
     GameBuffer gameBuffer();
   private:
+    int32_t timerIndex;
     QImage drawBuffer;
     QImage backBuffer;
     Game *game;
