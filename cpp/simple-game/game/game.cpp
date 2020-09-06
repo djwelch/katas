@@ -1,8 +1,4 @@
-#include <QApplication>
-#include <QLabel>
-
 #include <iostream>
-
 #include <boost/log/core.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
 #include <boost/log/sources/severity_logger.hpp>
@@ -11,8 +7,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
 
-#include "main_window.h"
-#include "keyboard_filter.h"
+#include <game/game.hpp>
 
 static void initialize_logging() {
   namespace keywords = boost::log::keywords;
@@ -30,16 +25,10 @@ static void initialize_logging() {
   BOOST_LOG_SEV(lg, info) << "Logging initialized";
 }
 
-int main(int argc, char **argv) {
+Game::Game() {
   initialize_logging();
+}
 
-  QApplication app(argc, argv);
-
-  KeyboardFilter *filter = new KeyboardFilter();
-  app.installEventFilter(filter);
-
-  MainWindow window;
-  window.show();
-  return app.exec();
+Game::~Game() {
 }
 

@@ -1,0 +1,7 @@
+set(CMAKE_CXX_FLAGS -pthread)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+add_executable(platform-qt5 keyboard_filter.cpp main.cpp main_window.cpp)
+target_link_libraries(platform-qt5 PRIVATE game Qt5::Widgets)
