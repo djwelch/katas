@@ -1,8 +1,6 @@
 #include "keyboard_filter.hpp"
 
-void KeyboardFilter::setGame(Game * game) {
-  this->game = game;
-}
+KeyboardFilter::KeyboardFilter(Game * game) : game(game) { }
 
 bool KeyboardFilter::eventFilter(QObject *obj, QEvent *event) {
   if (event->type() == QEvent::KeyPress) {

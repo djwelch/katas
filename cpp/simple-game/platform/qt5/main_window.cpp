@@ -2,7 +2,6 @@
 #include <QPainter>
 #include <QKeyEvent>
 #include <iostream>
-#include <functional>
 
 #include "main_window.hpp"
 
@@ -15,8 +14,9 @@ MainWindow::MainWindow(QApplication &app)
   startTimer(1000/60, Qt::PreciseTimer);
   setFocusPolicy(Qt::NoFocus);
   setFocus(Qt::ActiveWindowFocusReason);
-  keyboardFilter.setGame(game);
-  app.installEventFilter(&keyboardFilter);
+
+  keyboardFilter = new KeyboardFilter(game);
+  app.installEventFilter(keyboardFilter);
 }
 
 MainWindow::~MainWindow() {

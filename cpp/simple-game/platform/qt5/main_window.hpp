@@ -19,10 +19,11 @@ class MainWindow : public QMainWindow, public Platform
     void timerEvent(QTimerEvent *);
   private:
     GameBuffer gameBuffer();
-    KeyboardFilter keyboardFilter;
+  private:
     QImage drawBuffer;
     QImage backBuffer;
     Game *game;
+    KeyboardFilter *keyboardFilter;
 };
 
 #endif

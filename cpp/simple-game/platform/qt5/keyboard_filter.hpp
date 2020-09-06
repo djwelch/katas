@@ -10,11 +10,12 @@ class KeyboardFilter : public QObject
 {
   Q_OBJECT
   public:
-    void setGame(Game * game);
+    explicit KeyboardFilter(Game * game);
   protected:
     bool eventFilter(QObject *, QEvent *);
   private:
     void handleKeyPress(QKeyEvent *);
+  private:
     Game * game;
 };
 
