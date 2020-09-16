@@ -1,34 +1,32 @@
+#include <algorithm>
 #include <iostream>
-#include <boost/log/core.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/utility/setup/console.hpp>
+#include <tuple>
+
+#include <sys/time.h>
 
 #include <game/game.hpp>
 
-static void initialize_logging() {
-  namespace keywords = boost::log::keywords;
-  using namespace boost::log::trivial;
-  boost::log::add_console_log(std::cout, keywords::format="[%TimeStamp%]: %Message%");
-  auto sink = boost::log::add_file_log(
-      keywords::file_name="simple-game.log",
-      keywords::format="[%TimeStamp%]: %Message%");
-  sink->locked_backend()->auto_flush();
+#include "simple_game.hpp"
 
-  boost::log::add_common_attributes();
-  boost::log::core::get()->set_filter(severity >= debug);
-
-  boost::log::sources::severity_logger<severity_level> lg;
-  BOOST_LOG_SEV(lg, info) << "Logging initialized";
+extern "C" Game::Main *CreateGame(Game::Memory const &memory,
+                                  Game::State const &savedGameState) {
+  return new SimpleGame(memory, savedGameState);
 }
 
-Game::Game() {
-  initialize_logging();
-}
+Game::Main::Main() {}
 
-Game::~Game() {
-}
+Game::Main::~Main() {}
 
+extern "C" char *LOGTIME() {
+  static char buf[64] = {0};
+  char fmt[64];
+  struct timeval tv;
+  struct tm *tm;
+
+  gettimeofday(&tv, NULL);
+  if ((tm = localtime(&tv.tv_sec)) != NULL) {
+    strftime(fmt, sizeof fmt, "%Y-%m-%d %H:%M:%S.%%06u:", tm);
+    snprintf(buf, sizeof buf, fmt, tv.tv_usec);
+  }
+  return buf;
+}

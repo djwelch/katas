@@ -1,27 +1,72 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef GAME_HPP_FF40D715_9BB9_4DF1_B4FC_3409C5903D23
+#define GAME_HPP_FF40D715_9BB9_4DF1_B4FC_3409C5903D23
 
+#include <math.h>
 #include <stdint.h>
 
-struct GameBuffer {
-  uint8_t * data;
+extern "C" char *LOGTIME();
+
+#define INFO                                                                   \
+  std::cout << LOGTIME() << __FILE__ << "(" << __LINE__ << "):" << __func__    \
+            << ":"
+#define WARN                                                                   \
+  std::cout << LOGTIME() << __FILE__ << "(" << __LINE__ << "):" << __func__    \
+            << ":"
+#define ERROR                                                                  \
+  std::cout << LOGTIME() << __FILE__ << "(" << __LINE__ << "):" << __func__    \
+            << ":"
+
+namespace Game {
+
+struct Memory {
+  uint8_t *data;
+  uint64_t size;
+};
+
+struct State {
+  uint8_t *data;
+  uint64_t offset;
+  uint64_t size;
+};
+
+struct KeyboardInput {
+  bool active;
+};
+
+struct Input {
+  float_t timeDelta;
+  KeyboardInput W;
+  KeyboardInput A;
+  KeyboardInput S;
+  KeyboardInput D;
+};
+
+struct Audio {
+  float_t *data;
+  uint32_t length;
+  uint32_t sampleRate;
+};
+
+struct Frame {
+  uint32_t *data;
   uint32_t width;
   uint32_t height;
   uint32_t stride;
 };
 
-class Platform {
+class Main {
+protected:
+  Main();
+  virtual ~Main();
+
+public:
+  virtual void destroy(State &) = 0;
+  virtual void output(Input const &, Frame &) = 0;
+  virtual void output(Audio &) = 0;
 };
 
-class Game
-{
-  public:
-    static Game * Create(Platform *);
-  public:
-    Game();
-    virtual ~Game();
-    virtual void render(GameBuffer const & buffer) = 0;
-    virtual void keyPress(char key) = 0;
-};
+typedef Main *(*GameFactory)(Memory const &, State const &);
+
+} // namespace Game
 
 #endif

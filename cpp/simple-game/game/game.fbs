@@ -1,0 +1,23 @@
+namespace Buffers;
+
+table KeyboardState {
+  active:bool;
+}
+
+table InputState {
+  W:KeyboardState;
+  A:KeyboardState;
+  S:KeyboardState;
+  D:KeyboardState;
+}
+
+table State {
+  sound:bool = false;
+  frequency:uint = 440;
+  time:uint = 0;
+  playerX:float = 100;
+  playerY:float = 100;
+  input:InputState;
+}
+
+root_type State;
