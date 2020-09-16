@@ -3,13 +3,6 @@ set(CMAKE_C_COMPILER /usr/bin/clang)
 set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-#set(Boost_USE_STATIC_LIBS FALSE) 
-#set(Boost_USE_MULTITHREADED ON)
-#set(Boost_USE_STATIC_RUNTIME TRUE) 
-# add_definitions( -DBOOST_ALL_NO_LIB )
-#add_definitions( -DBOOST_LOG_DYN_LINK  )
-#add_definitions( -DBOOST_ALL_DYN_LINK )
-
 project(simple-game)
 
 add_subdirectory(game)

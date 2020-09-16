@@ -18,3 +18,7 @@ target_link_libraries(platform-x11 PRIVATE
   ${X11_LIBRARIES}
   rt
   OpenGL::GLX)
+target_compile_options(game PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Werror>
+)

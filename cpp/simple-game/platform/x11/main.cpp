@@ -138,8 +138,9 @@ int main(void) {
 
   frameInitialize();
   gameInitialize();
-  audioInitialize();
+  // audioInitialize();
   gameReload();
+  assert(game != nullptr);
 
   INFO << "Platform initialized" << std::endl;
 

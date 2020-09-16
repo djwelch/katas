@@ -1,8 +1,12 @@
 #include <assert.h>
 
+#include "player.hpp"
+#include "primitives.hpp"
+#include "render.hpp"
 #include "simple_game.hpp"
-#include "game_generated.h"
+#include "software_renderer.hpp"
 #include "static_allocator.hpp"
+#include "utilities.hpp"
 
 SimpleGame::SimpleGame(Game::Memory const &memory,
                        Game::State const &savedGameState)
@@ -20,10 +24,10 @@ void SimpleGame::destroy(Game::State &gameState) {
   fbb.FinishSizePrefixed(Buffers::State::Pack(fbb, state));
   uint64_t size;
   uint64_t offset;
-  auto r = fbb.ReleaseRaw(size, offset);
-  delete this;
+  fbb.ReleaseRaw(size, offset);
   gameState.offset = offset;
   gameState.size = size;
+  delete this;
 }
 
 void SimpleGame::output(Game::Input const &inputs, Game::Frame &output) {
@@ -31,12 +35,28 @@ void SimpleGame::output(Game::Input const &inputs, Game::Frame &output) {
   render(output);
 }
 
-void SimpleGame::render(Game::Frame &output) {
-  float_t width = output.width;
-  float_t height = output.height;
-  drawRectangle(output, {0.0f, 0.0f}, {width, height}, {0.7, 0.7, 0.7});
-  drawTileMap(output);
-  drawPlayer(output);
+void SimpleGame::update(Game::Input const &inputs) {
+  auto movementSpeed = 540.0f / 4;
+  auto dPlayerX = 0.0f;
+  auto dPlayerY = 0.0f;
+  if (inputs.W.active)
+    dPlayerY = 1.0f;
+  if (inputs.S.active)
+    dPlayerY = -1.0f;
+  if (inputs.D.active)
+    dPlayerX = 1.0f;
+  if (inputs.A.active)
+    dPlayerX = -1.0f;
+
+  state->playerX += dPlayerX * movementSpeed * inputs.timeDelta;
+  state->playerY += dPlayerY * movementSpeed * inputs.timeDelta;
+}
+
+void SimpleGame::render(Game::Frame &) {
+  // Color backgroundColor = {0.7, 0.7, 0.7};
+  // drawRectangle(output, {0.0f, 0.0f}, {width, height}, {0.7, 0.7, 0.7});
+  // drawTileMap(output);
+  // drawPlayer(output);
 }
 
 void SimpleGame::drawTileMap(Game::Frame &output) {
@@ -75,45 +95,11 @@ void SimpleGame::output(Game::Audio &output) {
   }
 }
 
-void SimpleGame::update(Game::Input const &inputs) {
-  auto movementSpeed = 540.0f / 4;
-  auto dPlayerX = 0.0f;
-  auto dPlayerY = 0.0f;
-  if (inputs.W.active)
-    dPlayerY = 1.0f;
-  if (inputs.S.active)
-    dPlayerY = -1.0f;
-  if (inputs.D.active)
-    dPlayerX = 1.0f;
-  if (inputs.A.active)
-    dPlayerX = -1.0f;
-
-  state->playerY += dPlayerY * movementSpeed * inputs.timeDelta;
-  state->playerX += dPlayerX * movementSpeed * inputs.timeDelta;
-}
-
 void SimpleGame::drawPlayer(Game::Frame &output) {
   auto playerHeight = 60.0f;
   auto playerWidth = 40.0f;
   drawRectangle(output, {state->playerX, state->playerY},
                 {playerWidth, playerHeight}, {1.0f, 0.0f, 0.0f});
-}
-
-uint32_t toUInt32(float_t f) { return static_cast<unsigned int>(f + 0.5); }
-int32_t toInt32(float_t f) { return static_cast<int>(f + 0.5); }
-uint32_t toUInt32(Color color) {
-  auto r = toUInt32(color.r * 255);
-  auto g = toUInt32(color.g * 255);
-  auto b = toUInt32(color.b * 255);
-  return r << 24 | g << 16 | b << 8 | 0xff;
-}
-
-int32_t clamp(int32_t val, int32_t min, int32_t max) {
-  if (val < min)
-    return min;
-  if (val > max)
-    return max;
-  return val;
 }
 
 void SimpleGame::drawRectangle(Game::Frame &output, Point const &position,

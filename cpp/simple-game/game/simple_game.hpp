@@ -5,17 +5,8 @@
 
 #include <game/game.hpp>
 
-struct Color {
-  float_t r, g, b;
-};
-
-struct Point {
-  float_t x, y;
-};
-
-struct Size {
-  float_t width, height;
-};
+#include "game_generated.h"
+#include "primitives.hpp"
 
 struct Tile {
   bool active;
@@ -26,10 +17,6 @@ struct TileMap {
   uint32_t height;
   Tile *tiles;
 };
-
-namespace Buffers {
-class StateT;
-}
 
 class SimpleGame : public Game::Main {
 public:

@@ -25,4 +25,7 @@ flatbuffers_generate_c_headers_ex(game game.fbs)
 add_library(game SHARED 
   game.cpp static_allocator.cpp simple_game.cpp ${game_OUTPUTS})
 target_include_directories(game PUBLIC ../include)
-
+target_compile_options(game PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Werror>
+)
