@@ -10,7 +10,7 @@ function(FLATBUFFERS_GENERATE_C_HEADERS_EX Name)
 
     add_custom_command(OUTPUT ${FLATC_OUTPUT}
       COMMAND ${FLATBUFFERS_FLATC_EXECUTABLE}
-      ARGS -c -o "${CMAKE_CURRENT_BINARY_DIR}/" --gen-object-api ${FILE}
+      ARGS -c -o "${CMAKE_CURRENT_BINARY_DIR}/" --force-defaults --scoped-enums --gen-mutable --gen-object-api --gen-name-strings ${FILE}
       DEPENDS ${FILE}
       COMMENT "Building C++ header for ${FILE}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -23,7 +23,7 @@ set(HEADER_LIST "../include/game/game.hpp")
 
 flatbuffers_generate_c_headers_ex(game game.fbs)
 add_library(game SHARED 
-  game.cpp static_allocator.cpp simple_game.cpp ${game_OUTPUTS})
+  game.cpp static_allocator.cpp simple_game.cpp save_allocator.cpp static_allocator.cpp ${game_OUTPUTS})
 target_include_directories(game PUBLIC ../include)
 target_compile_options(game PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>

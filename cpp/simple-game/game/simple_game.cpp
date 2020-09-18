@@ -1,65 +1,69 @@
-#include <assert.h>
-
-#include "player.hpp"
-#include "primitives.hpp"
-#include "render.hpp"
 #include "simple_game.hpp"
-#include "software_renderer.hpp"
+
+#include "memory_allocator.hpp"
+#include "objects.hpp"
+#include "save_allocator.hpp"
 #include "static_allocator.hpp"
 #include "utilities.hpp"
 
-SimpleGame::SimpleGame(Game::Memory const &memory,
-                       Game::State const &savedGameState)
-    : Main() {
-  assert(memory.size >= savedGameState.size);
-  state = reinterpret_cast<Buffers::StateT *>(memory.data);
-  Buffers::GetSizePrefixedState(savedGameState.data + savedGameState.offset)
-      ->UnPackTo(state);
+#include <cassert>
+
+simple_game::simple_game(game::memory const &memory, game::save const &save)
+    : main(), state(nullptr) {
+  assert(memory.size >= save.size);
+  static_allocator::instance(memory.data, memory.size);
+  state.reset(
+      game::object::GetSizePrefixedstate_t(save.data + save.offset)->UnPack());
+  if (!state->player)
+    state->player.reset(new game::object::rectangle_t());
 }
 
-void SimpleGame::destroy(Game::State &gameState) {
-  StaticAllocator allocator(gameState);
-  flatbuffers::FlatBufferBuilder fbb =
-      flatbuffers::FlatBufferBuilder(1024, &allocator);
-  fbb.FinishSizePrefixed(Buffers::State::Pack(fbb, state));
-  uint64_t size;
-  uint64_t offset;
-  fbb.ReleaseRaw(size, offset);
-  gameState.offset = offset;
-  gameState.size = size;
+void simple_game::destroy(game::save &save) {
+  auto allocator = save_allocator(save.data, save.size);
+  auto fbb = flatbuffers::FlatBufferBuilder(save.size, &allocator);
+  fbb.FinishSizePrefixed(game::object::state_t::Pack(fbb, state.get()));
+  fbb.ReleaseRaw(save.size, save.offset);
   delete this;
 }
 
-void SimpleGame::output(Game::Input const &inputs, Game::Frame &output) {
-  update(inputs);
+void simple_game::output(game::input const &input, game::frame &output) {
+  update(input);
   render(output);
 }
 
-void SimpleGame::update(Game::Input const &inputs) {
-  auto movementSpeed = 540.0f / 4;
+void simple_game::update(game::input const &input) {
+  auto movementSpeed = 540.0f / 4.0f;
   auto dPlayerX = 0.0f;
   auto dPlayerY = 0.0f;
-  if (inputs.W.active)
+  if (input.W.active)
     dPlayerY = 1.0f;
-  if (inputs.S.active)
+  if (input.S.active)
     dPlayerY = -1.0f;
-  if (inputs.D.active)
+  if (input.D.active)
     dPlayerX = 1.0f;
-  if (inputs.A.active)
+  if (input.A.active)
     dPlayerX = -1.0f;
 
-  state->playerX += dPlayerX * movementSpeed * inputs.timeDelta;
-  state->playerY += dPlayerY * movementSpeed * inputs.timeDelta;
+  auto &playerPosition = state->player->mutable_position();
+  playerPosition.mutate_x(playerPosition.x() +
+                          dPlayerX * movementSpeed * input.timeDelta);
+  playerPosition.mutate_y(playerPosition.y() +
+                          dPlayerY * movementSpeed * input.timeDelta);
+
+  INFO << "player:" << playerPosition.x() << "," << playerPosition.y()
+       << std::endl;
+  state->time += input.timeDelta;
 }
 
-void SimpleGame::render(Game::Frame &) {
+void simple_game::render(game::frame &) {
   // Color backgroundColor = {0.7, 0.7, 0.7};
   // drawRectangle(output, {0.0f, 0.0f}, {width, height}, {0.7, 0.7, 0.7});
   // drawTileMap(output);
   // drawPlayer(output);
 }
 
-void SimpleGame::drawTileMap(Game::Frame &output) {
+/*
+void simple_game::drawTileMap(game::frame &output) {
   // clang-format off
   uint32_t tileMap[9][16] = {
     {1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,},
@@ -88,22 +92,24 @@ void SimpleGame::drawTileMap(Game::Frame &output) {
     }
   }
 }
-
-void SimpleGame::output(Game::Audio &output) {
-  if (state->sound) {
-    state->time = sineWave(output, state->frequency, state->time);
-  }
+*/
+void simple_game::output(game::audio &output) {
+  memset(output.data, 0, output.length * sizeof(float_t));
+  //  if (state->sound) {
+  //    state->time = sineWave(output, state->frequency, state->time);
+  //  }
 }
 
-void SimpleGame::drawPlayer(Game::Frame &output) {
+/*
+void simple_game::drawPlayer(game::frame &output) {
   auto playerHeight = 60.0f;
   auto playerWidth = 40.0f;
   drawRectangle(output, {state->playerX, state->playerY},
                 {playerWidth, playerHeight}, {1.0f, 0.0f, 0.0f});
 }
 
-void SimpleGame::drawRectangle(Game::Frame &output, Point const &position,
-                               Size const &size, Color const &color) {
+void simple_game::drawRectangle(game::frame &output, Point const &position,
+                                Size const &size, Color const &color) {
   auto buffer = output.data;
   auto starty = toUInt32(position.y);
   auto endy = starty + toUInt32(size.height);
@@ -124,8 +130,8 @@ void SimpleGame::drawRectangle(Game::Frame &output, Point const &position,
   }
 }
 
-uint32_t SimpleGame::sineWave(Game::Audio &buffer, float_t frequency,
-                              uint32_t t) {
+uint32_t simple_game::sineWave(game::audio &buffer, float_t frequency,
+                               uint32_t t) {
   static float_t freq = frequency;
   uint32_t quarterSampleRate = buffer.sampleRate / 4;
   auto data = buffer.data;
@@ -141,3 +147,4 @@ uint32_t SimpleGame::sineWave(Game::Audio &buffer, float_t frequency,
   }
   return t;
 }
+*/

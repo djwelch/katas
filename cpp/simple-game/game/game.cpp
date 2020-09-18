@@ -1,21 +1,20 @@
-#include <algorithm>
-#include <iostream>
-#include <tuple>
-
-#include <sys/time.h>
-
 #include <game/game.hpp>
 
 #include "simple_game.hpp"
 
-extern "C" Game::Main *CreateGame(Game::Memory const &memory,
-                                  Game::State const &savedGameState) {
-  return new SimpleGame(memory, savedGameState);
+#include <algorithm>
+#include <iostream>
+#include <tuple>
+#include <sys/time.h>
+
+extern "C" game::main *CreateGame(game::memory const &memory,
+                                  game::save const &save) {
+  return new simple_game(memory, save);
 }
 
-Game::Main::Main() {}
+game::main::main() = default;
 
-Game::Main::~Main() {}
+game::main::~main() = default;
 
 extern "C" char *LOGTIME() {
   static char buf[64] = {0};

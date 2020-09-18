@@ -16,57 +16,57 @@ extern "C" char *LOGTIME();
   std::cout << LOGTIME() << __FILE__ << "(" << __LINE__ << "):" << __func__    \
             << ":"
 
-namespace Game {
+namespace game {
 
-struct Memory {
+struct memory {
   uint8_t *data;
   uint64_t size;
 };
 
-struct State {
+struct save {
   uint8_t *data;
   uint64_t offset;
   uint64_t size;
 };
 
-struct KeyboardInput {
+struct keyboard_input {
   bool active;
 };
 
-struct Input {
+struct input {
   float_t timeDelta;
-  KeyboardInput W;
-  KeyboardInput A;
-  KeyboardInput S;
-  KeyboardInput D;
+  keyboard_input W;
+  keyboard_input A;
+  keyboard_input S;
+  keyboard_input D;
 };
 
-struct Audio {
+struct audio {
   float_t *data;
   uint32_t length;
   uint32_t sampleRate;
 };
 
-struct Frame {
+struct frame {
   uint32_t *data;
   uint32_t width;
   uint32_t height;
   uint32_t stride;
 };
 
-class Main {
+class main {
 protected:
-  Main();
-  virtual ~Main();
+  main();
+  virtual ~main();
 
 public:
-  virtual void destroy(State &) = 0;
-  virtual void output(Input const &, Frame &) = 0;
-  virtual void output(Audio &) = 0;
+  virtual void destroy(save &) = 0;
+  virtual void output(input const &, frame &) = 0;
+  virtual void output(audio &) = 0;
 };
 
-typedef Main *(*GameFactory)(Memory const &, State const &);
+typedef main *(*GameFactory)(memory const &, save const &);
 
-} // namespace Game
+} // namespace game
 
 #endif

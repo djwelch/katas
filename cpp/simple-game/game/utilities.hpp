@@ -1,19 +1,20 @@
 #ifndef UTILITIES_HPP_A4C82D9D_EBE9_49D7_A836_10DC0E5A9869
 #define UTILITIES_HPP_A4C82D9D_EBE9_49D7_A836_10DC0E5A9869
 
-#include <math.h>
-#include <stdint.h>
+#include "memory_allocator.hpp"
+#include "objects.hpp"
 
-#include "primitives.hpp"
+#include <cmath>
+#include <cstdint>
 
-uint32_t toUInt32(float_t f) { return static_cast<unsigned int>(f + 0.5); }
+uint32_t to_uint32_t(float_t f) { return static_cast<unsigned int>(f + 0.5); }
 
-int32_t toInt32(float_t f) { return static_cast<int>(f + 0.5); }
+int32_t to_int32_t(float_t f) { return static_cast<int>(f + 0.5); }
 
-uint32_t toUInt32(Color color) {
-  auto r = toUInt32(color.r * 255);
-  auto g = toUInt32(color.g * 255);
-  auto b = toUInt32(color.b * 255);
+uint32_t to_uint32_t(game::object::color_t &color) {
+  auto r = to_uint32_t(color.r() * 255);
+  auto g = to_uint32_t(color.g() * 255);
+  auto b = to_uint32_t(color.b() * 255);
   return r << 24 | g << 16 | b << 8 | 0xff;
 }
 

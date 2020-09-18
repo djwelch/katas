@@ -1,14 +1,20 @@
 #include "static_allocator.hpp"
 
-uint8_t *StaticAllocator::allocate(size_t size) {
-  assert(state.size == size);
-  assert(!allocated);
-  allocated = true;
-  return state.data;
+#include <cassert>
+
+static_allocator &static_allocator::instance(uint8_t *data, size_t size) {
+  static static_allocator instance = static_allocator(data, size);
+  return instance;
 }
 
-void StaticAllocator::deallocate(uint8_t *, size_t size) {
-  assert(allocated);
-  assert(state.size == size);
-  allocated = false;
+void *static_allocator::allocate(size_t size) {
+  size_free -= size;
+  assert(size_free >= 0);
+  return data + size_free;
+}
+
+void static_allocator::deallocate(void *ptr, size_t size) {
+  assert((data + size_free) == ptr);
+  size_free += size;
+  assert(size_free <= size_total);
 }

@@ -1,22 +1,20 @@
-#include <chrono>
-#include <cstring>
-#include <iostream>
+#include <game/game.hpp>
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
+#include <GL/glx.h>
+#include <jack/jack.h>
+
 #include <assert.h>
+#include <chrono>
+#include <cstring>
 #include <dlfcn.h>
+#include <iostream>
 #include <stdlib.h>
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
-
-#include <GL/glx.h>
-
-#include <jack/jack.h>
-
-#include <game/game.hpp>
 
 static bool handleNextEvents(Display *, Window, Atom);
 
@@ -34,16 +32,16 @@ static itimerspec GameReloadTimeout = {
     .it_value = {.tv_sec = 2, .tv_nsec = 0},
 };
 
-static Game::Memory GameMemory = {
+static game::memory GameMemory = {
     .data = new uint8_t[1024],
     .size = 1024,
 };
-static Game::State SavedGameState = {
+static game::save GameSave = {
     .data = new uint8_t[1024],
     .offset = 0,
     .size = 1024,
 };
-static Game::Main *game = nullptr;
+static game::main *Game = nullptr;
 static void gameInitialize();
 static void gameReload();
 static void gameTerminate();
@@ -55,7 +53,7 @@ static itimerspec FrameTimeout = {
 };
 static uint32_t FrameWidth = 1920 / 2;
 static uint32_t FrameHeight = 1080 / 2;
-static Game::Frame FrameBuffer = {
+static game::frame FrameBuffer = {
     .data = new uint32_t[FrameWidth * FrameHeight],
     .width = FrameWidth,
     .height = FrameHeight,
@@ -66,7 +64,7 @@ static void frameInitialize();
 static void frameNotify(Display *, Window);
 static void frameTerminate();
 
-static Game::Input inputs = {0};
+static game::input inputs = {0};
 static void keypressNotify(XKeyEvent *, bool);
 static void keypressClear(XKeyEvent *, bool);
 
@@ -140,7 +138,7 @@ int main(void) {
   gameInitialize();
   // audioInitialize();
   gameReload();
-  assert(game != nullptr);
+  assert(Game != nullptr);
 
   INFO << "Platform initialized" << std::endl;
 
@@ -243,7 +241,7 @@ bool handleNextEvents(Display *display, Window window, Atom wmDeleteMessage) {
 
 void keypressNotify(XKeyEvent *keyEvent, bool active) {
   auto ch = (char)XLookupKeysym(keyEvent, 0);
-  Game::KeyboardInput *i = nullptr;
+  game::keyboard_input *i = nullptr;
   switch (ch) {
   case 'w':
     i = &inputs.W;
@@ -278,7 +276,7 @@ void frameTerminate() {
 
 void frameNotify(Display *display, Window window) {
   static auto lastFrameTime = std::chrono::steady_clock::now();
-  if (game == nullptr)
+  if (Game == nullptr)
     return;
   auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::steady_clock::now() - lastFrameTime);
@@ -286,7 +284,7 @@ void frameNotify(Display *display, Window window) {
   inputs.timeDelta = dt.count() / 1000.0f;
   lastFrameTime = std::chrono::steady_clock::now();
 
-  game->output(inputs, FrameBuffer);
+  Game->output(inputs, FrameBuffer);
 
   glViewport(0, 0, FrameWidth, FrameHeight);
 
@@ -377,21 +375,21 @@ void audioInitialize() {
 }
 
 static int audioNotify(jack_nframes_t nframes, void *) {
-  static Game::Audio audioOutput = {0};
-  if (game == nullptr)
+  static game::audio audioOutput = {0};
+  if (Game == nullptr)
     return 0;
   if (audioPort == nullptr) {
     return 1;
   }
 
   auto outputBuffer =
-      reinterpret_cast<float_t *>(jack_port_get_buffer(audioPort, nframes));
+      static_cast<float_t *>(jack_port_get_buffer(audioPort, nframes));
   memset(outputBuffer, 0, sizeof(float_t) * nframes);
   audioOutput.data = outputBuffer;
   audioOutput.length = nframes;
   audioOutput.sampleRate = audioSampleRate;
 
-  game->output(audioOutput);
+  Game->output(audioOutput);
 
   return 0;
 }
@@ -406,7 +404,7 @@ static void audioTerminate() {
 
 void gameInitialize() {
   int ret;
-  memset(SavedGameState.data, 0, SavedGameState.size);
+  memset(GameSave.data, 0, GameSave.size);
 
   GameReloadTimer = timerfd_create(CLOCK_REALTIME, 0);
   assert(GameReloadTimer != -1);
@@ -421,9 +419,9 @@ void gameInitialize() {
 
 void gameReload() {
   static char GameLibrary[] = "./build/game/libgame.so";
-  if (game != nullptr) {
-    game->destroy(SavedGameState);
-    game = nullptr;
+  if (Game != nullptr) {
+    Game->destroy(GameSave);
+    Game = nullptr;
   }
 
   if (GameLibraryHandle != nullptr) {
@@ -440,25 +438,24 @@ void gameReload() {
   }
   assert(GameLibraryHandle != nullptr);
 
-  auto CreateGame = (Game::GameFactory)dlsym(GameLibraryHandle, "CreateGame");
+  auto CreateGame = (game::GameFactory)dlsym(GameLibraryHandle, "CreateGame");
   assert(CreateGame != nullptr);
 
-  memset(GameMemory.data, 0, GameMemory.size);
-  auto newGame = (*CreateGame)(GameMemory, SavedGameState);
+  auto newGame = (*CreateGame)(GameMemory, GameSave);
   assert(newGame != nullptr);
 
-  game = newGame;
+  Game = newGame;
 }
 
 void gameTerminate() {
-  if (game != nullptr) {
-    game->destroy(SavedGameState);
-    game = nullptr;
+  if (Game != nullptr) {
+    Game->destroy(GameSave);
+    Game = nullptr;
   }
-  delete[] SavedGameState.data;
-  SavedGameState.data = nullptr;
-  SavedGameState.size = 0;
-  SavedGameState.offset = 0;
+  delete[] GameSave.data;
+  GameSave.data = nullptr;
+  GameSave.size = 0;
+  GameSave.offset = 0;
   delete[] GameMemory.data;
   GameMemory.data = nullptr;
   GameMemory.size = 0;
