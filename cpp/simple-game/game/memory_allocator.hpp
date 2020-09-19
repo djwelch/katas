@@ -7,13 +7,11 @@
 
 template <typename T> struct memory_allocator {
   T *allocate(size_t size) {
-    INFO << "allocate:" << typeid(T).name() << ":" << size << std::endl;
     return static_cast<T *>(
         static_allocator::instance().allocate(size * sizeof(T)));
   }
 
   void deallocate(T *ptr, size_t size) {
-    INFO << "deallocate:" << typeid(T).name() << ":" << size << std::endl;
     static_allocator::instance().deallocate(static_cast<void *>(ptr),
                                             size * sizeof(T));
   }

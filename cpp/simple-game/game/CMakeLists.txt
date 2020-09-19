@@ -1,5 +1,5 @@
+set(CMAKE_BUILD_TYPE Debug)
 find_package(FlatBuffers REQUIRED)
-
 function(FLATBUFFERS_GENERATE_C_HEADERS_EX Name)
   set(FLATC_OUTPUTS)
   foreach(FILE ${ARGN})
