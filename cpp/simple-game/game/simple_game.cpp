@@ -14,8 +14,10 @@ simple_game::simple_game(game::memory const &memory, game::save const &save)
   static_allocator::instance(memory.data, memory.size);
   state.reset(
       game::object::GetSizePrefixedstate_t(save.data + save.offset)->UnPack());
-  if (!state->player)
+  if (!state->player) {
     state->player.reset(new game::object::rectangle_t());
+    state->player->mutable_dimensions() = game::object::dimensions_t(100, 100);
+  }
 }
 
 void simple_game::destroy(game::save &save) {
@@ -50,18 +52,38 @@ void simple_game::update(game::input const &input) {
   playerPosition.mutate_y(playerPosition.y() +
                           dPlayerY * movementSpeed * input.timeDelta);
 
-  INFO << "player:" << playerPosition.x() << "," << playerPosition.y()
-       << std::endl;
   state->time += input.timeDelta;
 }
 
-void simple_game::render(game::frame &) {
-  // Color backgroundColor = {0.7, 0.7, 0.7};
-  // drawRectangle(output, {0.0f, 0.0f}, {width, height}, {0.7, 0.7, 0.7});
+void simple_game::render(game::frame &output) {
+  game::object::color_t background_color = {0.7, 0.7, 0.7};
+  drawRectangle(output, state->player, {0.7, 0.7, 0.7});
   // drawTileMap(output);
   // drawPlayer(output);
 }
 
+void simple_game::drawRectangle(
+    game::frame &output, std::unique_ptr<game::object::rectangle_t> const &rect,
+    game::object::color_t const &color) {
+  auto buffer = output.data;
+  auto starty = to_uint32_t(rect->position().y());
+  auto endy = starty + to_uint32_t(rect->dimensions().height());
+  auto startx = to_uint32_t(rect->position().x());
+  auto endx = startx + to_uint32_t(rect->dimensions().width());
+
+  starty = clamp(starty, 0, output.height - 1);
+  endy = clamp(endy, 0, output.height - 1);
+
+  startx = clamp(startx, 0, output.width - 1);
+  endx = clamp(endx, 0, output.width - 1);
+
+  auto rgbColor = to_uint32_t(color);
+  for (auto y = starty; y != endy; ++y) {
+    for (auto x = startx; x != endx; ++x) {
+      buffer[x + y * output.stride] = rgbColor;
+    }
+  }
+}
 /*
 void simple_game::drawTileMap(game::frame &output) {
   // clang-format off
@@ -107,29 +129,9 @@ void simple_game::drawPlayer(game::frame &output) {
   drawRectangle(output, {state->playerX, state->playerY},
                 {playerWidth, playerHeight}, {1.0f, 0.0f, 0.0f});
 }
+*/
 
-void simple_game::drawRectangle(game::frame &output, Point const &position,
-                                Size const &size, Color const &color) {
-  auto buffer = output.data;
-  auto starty = toUInt32(position.y);
-  auto endy = starty + toUInt32(size.height);
-  auto startx = toUInt32(position.x);
-  auto endx = startx + toUInt32(size.width);
-
-  starty = clamp(starty, 0, output.height - 1);
-  endy = clamp(endy, 0, output.height - 1);
-
-  startx = clamp(startx, 0, output.width - 1);
-  endx = clamp(endx, 0, output.width - 1);
-
-  auto rgbColor = toUInt32(color);
-  for (auto y = starty; y != endy; ++y) {
-    for (auto x = startx; x != endx; ++x) {
-      buffer[x + y * output.stride] = rgbColor;
-    }
-  }
-}
-
+/*
 uint32_t simple_game::sineWave(game::audio &buffer, float_t frequency,
                                uint32_t t) {
   static float_t freq = frequency;

@@ -48,8 +48,8 @@ static void gameTerminate();
 
 static int FrameTimer = -1;
 static itimerspec FrameTimeout = {
-    .it_interval = {.tv_sec = 0, .tv_nsec = 33000000},
-    .it_value = {.tv_sec = 0, .tv_nsec = 33000000},
+    .it_interval = {.tv_sec = 0, .tv_nsec = 16000000},
+    .it_value = {.tv_sec = 0, .tv_nsec = 16000000},
 };
 static uint32_t FrameWidth = 1920 / 2;
 static uint32_t FrameHeight = 1080 / 2;
@@ -275,16 +275,29 @@ void frameTerminate() {
 }
 
 void frameNotify(Display *display, Window window) {
+  static uint32_t frameIndex = 0;
+  static auto secondTimer = std::chrono::steady_clock::now();
   static auto lastFrameTime = std::chrono::steady_clock::now();
   if (Game == nullptr)
     return;
-  auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(
-      std::chrono::steady_clock::now() - lastFrameTime);
 
+  auto now = std::chrono::steady_clock::now();
+  auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(
+      now - lastFrameTime);
   inputs.timeDelta = dt.count() / 1000.0f;
   lastFrameTime = std::chrono::steady_clock::now();
 
   Game->output(inputs, FrameBuffer);
+  ++frameIndex;
+
+  auto seconds =
+      std::chrono::duration_cast<std::chrono::milliseconds>(now - secondTimer)
+          .count();
+  if (seconds >= 1000) {
+    INFO << "fps:" << frameIndex << std::endl;
+    frameIndex = 0;
+    secondTimer = now;
+  }
 
   glViewport(0, 0, FrameWidth, FrameHeight);
 

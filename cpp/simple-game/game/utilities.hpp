@@ -11,7 +11,7 @@ uint32_t to_uint32_t(float_t f) { return static_cast<unsigned int>(f + 0.5); }
 
 int32_t to_int32_t(float_t f) { return static_cast<int>(f + 0.5); }
 
-uint32_t to_uint32_t(game::object::color_t &color) {
+uint32_t to_uint32_t(game::object::color_t const &color) {
   auto r = to_uint32_t(color.r() * 255);
   auto g = to_uint32_t(color.g() * 255);
   auto b = to_uint32_t(color.b() * 255);

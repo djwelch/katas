@@ -1,6 +1,8 @@
 #ifndef SIMPLE_GAME_HPP_30922BD6_7565_44B7_907F_DB7A5AE4D4ED
 #define SIMPLE_GAME_HPP_30922BD6_7565_44B7_907F_DB7A5AE4D4ED
 
+#include "objects.hpp"
+
 #include <game/game.hpp>
 
 #include <memory>
@@ -21,14 +23,15 @@ public:
 private:
   void update(game::input const &);
   void render(game::frame &);
+  void drawRectangle(game::frame &,
+                     std::unique_ptr<game::object::rectangle_t> const &,
+                     game::object::color_t const &);
   // void drawTileMap(game::frame &);
   // void drawPlayer(game::frame &);
-  // void drawRectangle(game::frame &, Point const &, Size const &, Color const
-  // &);
   // uint32_t sineWave(game::audio &, float_t, uint32_t);
 
 private:
   std::unique_ptr<game::object::state_tT> state;
-};
+  };
 
 #endif
