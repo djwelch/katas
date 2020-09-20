@@ -3,7 +3,7 @@ set(CMAKE_CXX_FLAGS -pthread)
 set(OpenGL_GL_PREFERENCE GLVND)
 
 find_package(OpenGL COMPONENTS GLX REQUIRED)
-find_package(JACK REQUIRED)
+find_package(Jack REQUIRED)
 find_package(X11 REQUIRED)
 
 add_executable(platform-x11 main.cpp)
