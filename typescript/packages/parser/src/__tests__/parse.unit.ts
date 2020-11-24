@@ -8,8 +8,11 @@ describe("parse", () => {
 
   it.each([
     ["0", 0],
-    ["10", 10],
-    ["987654321", 987654321],
+    ["3", 3],
+    ["90", 90],
+    ["01", 1],
+    ["12345678", 12345678],
+    ["1+1", 2],
   ])("returns ast", (input: string, match: number) => {
     const ast = parse(input);
     expect(ast).toMatchObject({ success: true, match, rest: [] });
