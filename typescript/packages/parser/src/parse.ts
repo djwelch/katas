@@ -2,77 +2,94 @@ type Failure = { success: false };
 type Success<T> = { success: true, match: T, rest: string[] };
 export type Result<T> = Success<T> | Failure
 
+const base10 = (n: number[]) => result(n.reduce((acc, d) => acc*10+d));
+const addition = ([[lhs, _], rhs]: [[number, string], number]) => result(lhs+rhs);
+
 export function parse(expr: string): Result<number> {
   const input = expr.split('');
 
-  const plus = (lhs: number) => {
-    return (rhs: number) => {
-      return lhs+rhs;
-    }
-  };
+  const integer = bind(base10, digits);
 
-  const halfPlus = bind(lhs => bind(() => result(plus(lhs)), char('+')), digits);
+  const plus = bind(addition, andThen(andThen(integer, char('+')), integer));
 
-  const fullPlus = bind(plus => bind(rhs => result(plus(rhs)), digits), halfPlus);
-
-  return orElse(fullPlus, digits)(input);
+  return orElse(plus, integer)(input);
 }
 
 type Parser<T> = (input: string[]) => Result<T>;
 
 const result = <T>(match: T): Parser<T> => {
-  return (input: string[]): Result<T> => {
-    return { success: true, match, rest: input };
-  };
+  return (rest: string[]): Result<T> => {
+    return { success: true, match, rest };
+
+  }
 };
 
-const digitsToNumber = (m: number[]) => result(m.reduce((acc, val) => acc*10+val));
-
-const bind = <T1, T2>(f: (match: T2) => Parser<T1>, p: Parser<T2>): Parser<T1> => {
-  return (input: string[]): Result<T1> => {
-    const result1 = p(input);
-    if (result1.success) {
-      let p2 = f(result1.match);
-      return p2(result1.rest);
+const bind = <T1, T2>(f: (match: T1) => Parser<T2>, p: Parser<T1>): Parser<T2> => {
+  return (input: string[]): Result<T2> => {
+    const result = p(input);
+    if (result.success) {
+      const p2 = f(result.match);
+      return p2(result.rest);
     }
-    return result1;
-  };
+    return result;
+  }
 }
 
-const atLeastOne = <T>(p: Parser<T>): Parser<T[]> => {
+const many1 = <T>(p: Parser<T>): Parser<T[]> => {
+  return bind(([n, rest]: [T, T[]]) => result([n].concat(...rest)),
+              andThen(p, many(p)));
+}
+
+const many = <T>(p: Parser<T>): Parser<T[]> => {
   return (input: string[]): Result<T[]> => {
-    let result1 = p(input);
-    if (!result1.success) return result1;
-    const results: Result<T[]> = { ...result1, match: [result1.match] };
-    while (true) {
-      const r = p(results.rest);
+    const result: Result<T[]> = { success: true, match: [], rest: input };
+    while (result.success) {
+      const r = p(result.rest);
       if (!r.success) break;
-      results.match.push(r.match);
-      results.rest = r.rest;
+
+      result.success = r.success;
+      result.match.push(r.match);
+      result.rest = r.rest;
     }
-    return results;
+    return result;
   };
 };
 
-const orElse = <T1,T2>(p1: Parser<T1>, p2: Parser<T2>): Parser<T1|T2> => {
-  return (input: string[]): Result<T1|T2> => {
-    let result1 = p1(input);
-    if (result1.success) return result1;
+const andThen = <T1, T2>(p1: Parser<T1>, p2: Parser<T2>): Parser<[T1, T2]> => {
+  return (input: string[]): Result<[T1,T2]> => {
+    const result1 = p1(input);
+    if (result1.success) {
+      const result2 = p2(result1.rest);
+      if (result2.success) {
+        return { success: true, match: [result1.match, result2.match], rest: result2.rest };
+      }
+    }
+    return { success: false };
+  };
+};
+
+const orElse = <T>(p1: Parser<T>, p2: Parser<T>): Parser<T> => {
+  return (input: string[]): Result<T> => {
+    const result = p1(input);
+    if (result.success) return result;
     return p2(input);
   };
 };
 
 const oneOf = <T>(parsers: Parser<T>[]): Parser<T> => {
-  return parsers.reduce((previousParser, currentParser) => orElse(previousParser, currentParser));
-}
+  return parsers.reduce((parseOneOf, p) => orElse(parseOneOf, p));
+};
 
 const char = (charToMatch: string): Parser<string> => {
   return (input: string[]): Result<string> => {
     const [ch, ...rest] = input;
-    if (ch === charToMatch) return { success: true, match: charToMatch, rest };
+    if (ch === charToMatch) return { success: true, match: ch, rest };
     return { success: false };
-  };
-};
+  }
+}
 
-const digit = oneOf("0123456789".split("").map(ch => bind(ch => result(Number.parseInt(ch)), char(ch))));
-const digits = bind(digitsToNumber, atLeastOne(digit));
+const digit = oneOf("0123456789".split('')
+                    .map(ch => bind((ch) => result(Number.parseInt(ch)), char(ch))));
+
+const digits = many1(digit);
+

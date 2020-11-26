@@ -9,10 +9,14 @@ describe("parse", () => {
   it.each([
     ["0", 0],
     ["3", 3],
-    ["90", 90],
-    ["01", 1],
-    ["12345678", 12345678],
-    ["1+1", 2],
+    ["9", 9],
+    ["12", 12],
+    ["45", 45],
+    ["123", 123],
+    ["3+7", 10],
+    ["3+2", 5],
+    ["13+2", 15],
+    ["1+13", 14],
   ])("returns ast", (input: string, match: number) => {
     const ast = parse(input);
     expect(ast).toMatchObject({ success: true, match, rest: [] });
